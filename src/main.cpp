@@ -1,65 +1,80 @@
 #include <iostream>
-class Component {
+class Beverage {
 	public:
-		virtual ~Component() {}
-		virtual void method() = 0;
-		// etc...
+		virtual ~Beverage() {}
+		virtual float cost() = 0;
 };
 
-class ConcreteComponent : public Component {
+class HouseBlend : public Beverage {
+	private:
+		float cost_ = 1.50;
 	public:
-		virtual ~ConcreteComponent() {}
-		void method() {
-			std::cout << "method" << std::endl;
+		virtual ~HouseBlend() {}
+		float cost() {
+			std::cout << "cost of house blend is " << cost_ << std::endl;
+			return cost_;
 		}
-		// etc...
 };
 
-class Decorator : public Component {
+class CondimentDecorator : Beverage {
+	private:
+		Beverage *beverage_;
+	public:
+		~CondimentDecorator() {};
+		CondimentDecorator(Beverage *beverage) : beverage_(beverage) {}
+		virtual float cost() override {
+			return beverage_->cost();
+		}
+
+};
+
+class SteamedMilk : public Beverage {
 	private:
 		// a reference to the Component that we will be decorating
-		Component *component_;
+		Beverage *beverage_;
+		float cost_ = 0.25;
 	public:
 		// the interface conforms to the Component interface
-		~Decorator() {}
-		Decorator(Component *component) : component_(component) {}
-		virtual void method() {
-			component_->method();
+		~SteamedMilk() {}
+		SteamedMilk(Beverage *beverage) : beverage_(beverage) {}
+		float cost() {
+			float total_cost = this->cost_ + beverage_->cost();
+			std::cout << "Steamed milk adds " << cost_ << std::endl;
+			return total_cost;
 		}
 };
 
-class ConcreteDecoratorA : public Decorator {
+class Mocha : public Beverage {
+	private:
+		Beverage *beverage_;
+		float cost_ = 0.5;
 	public:
-		ConcreteDecoratorA(Component *component) : Decorator(component) {}
-		void method() {
-			Decorator::method();
-			// add capabilities for this decorator
-			std::cout << "Decorator A" << std::endl;
+		Mocha(Beverage *beverage) : beverage_(beverage) {}
+		float cost() {
+			float total_cost = this->cost_ + beverage_->cost();
+			std::cout << "mocha adds " << cost_ << std::endl;
+			return total_cost;
 		}
 };
 
-class ConcreteDecoratorB : public Decorator {
-	public:
-		ConcreteDecoratorB( Component *component) : Decorator(component) {}
-		void method() {
-			Decorator::method();
-			// add capabilities for this decorator.
-			std::cout << "Decorator B" << std::endl;
-		}
-};
 
 int main(int argc, char *argv[])
 {
-	ConcreteComponent *concreteComponent = new ConcreteComponent();
-	ConcreteDecoratorA *decoratorA = new ConcreteDecoratorA(concreteComponent);
-	ConcreteDecoratorB *decoratorB = new ConcreteDecoratorB(decoratorA);
+	float cost;
 
-	Component *component = decoratorB;
-	component->method();
-	decoratorA->method();
-	concreteComponent->method();
+	HouseBlend *beverageA = new HouseBlend();
+	Mocha *mocha = new Mocha(beverageA);
 
-	delete decoratorA;
-	delete decoratorB;
-	delete concreteComponent;
+	Beverage *beverage = mocha;
+	cost = mocha->cost();
+	std::cout << "Total cost " << cost << std::endl;
+
+	SteamedMilk *withSteamed = new SteamedMilk(mocha);
+	cost = withSteamed->cost();
+	std::cout << "Total cost " << cost << std::endl;
+
+	delete mocha;
+	delete withSteamed;
+	delete beverageA;
+
 }
