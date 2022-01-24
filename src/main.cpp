@@ -1,8 +1,7 @@
 #include <iostream>
 class Component {
 	public:
-		Component(){
-		}
+		Component(){}
 		virtual ~Component() {}
 		virtual std::string method() const = 0;
 		// etc...
